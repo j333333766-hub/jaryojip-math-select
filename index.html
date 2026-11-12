@@ -30,8 +30,16 @@ button{font-family:inherit;cursor:pointer}
 .sub .acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
 .abtn{background:#fff;border:1px solid var(--rb);color:var(--rb);border-radius:5px;padding:7px 12px;font-size:13px;font-weight:700}
 .abtn.pri{background:var(--rb);color:#fff}
-.body{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;max-width:1500px;margin:0 auto}
-.panel{background:#fff;border-radius:6px;padding:22px 24px;min-height:70vh;position:relative;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Ctext x='10' y='110' transform='rotate(-24 130 85)' font-family='sans-serif' font-size='15' fill='%23000' fill-opacity='0.035'%3E협의용 모형 · 외부 공개 금지%3C/text%3E%3C/svg%3E")}
+html,body{height:100%}
+body{display:flex;flex-direction:column;overflow:hidden}
+.top,.sub,.foot{flex:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:var(--lw,50%) 8px 1fr;padding:10px;gap:0;grid-template-rows:minmax(0,1fr)}
+.split{cursor:col-resize;display:flex;align-items:center;justify-content:center}
+.split::before{content:"";width:4px;height:44px;border-radius:2px;background:#c3cbdb}
+.split:hover::before,.split.drag::before{background:var(--rb)}
+.panel{overflow-y:auto;overscroll-behavior:contain;min-height:0;height:100%}
+.panel::-webkit-scrollbar{width:10px}.panel::-webkit-scrollbar-thumb{background:#c7cfdd;border-radius:6px;border:2px solid #fff}
+.panel{background:#fff;border-radius:6px;padding:22px 24px;position:relative;font-size:var(--fs,15px);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Ctext x='10' y='110' transform='rotate(-24 130 85)' font-family='sans-serif' font-size='15' fill='%23000' fill-opacity='0.035'%3E협의용 모형 · 외부 공개 금지%3C/text%3E%3C/svg%3E")}
 .directive{display:flex;gap:10px;align-items:flex-start;line-height:1.75;margin-bottom:16px}
 .rng{flex:none;border:1.5px solid var(--rb);border-radius:6px;padding:1px 9px;font-weight:700;background:#fff;white-space:nowrap}
 .mat{margin-top:14px}
@@ -67,7 +75,12 @@ hr.qsep{border:0;border-top:1px solid #e3e8f2;margin:16px 0 10px 22px}
 .cnt{color:#8a93a8;font-size:.8em;margin-top:4px}
 .cnt b{color:var(--rb)}
 .qbtns{display:flex;gap:8px;margin:14px 0 0 22px;flex-wrap:wrap}
-.foot{display:flex;justify-content:space-between;max-width:1500px;margin:0 auto 18px;padding:0 10px}
+.foot{display:flex;align-items:center;gap:10px;background:#fff;border-top:1px solid #e3e8f2;padding:8px 18px}
+.foot .fnote{color:var(--mute);font-size:12px;margin-right:auto}
+.foot .pos{font-weight:700;color:var(--rb);min-width:54px;text-align:center}
+.tool{border:1px solid var(--line);background:#fff;border-radius:4px;padding:5px 9px;font-size:12.5px;color:#39415a}
+.nbtn.pri{background:var(--rb);border-color:var(--rb);color:#fff}
+.nbtn:disabled{opacity:.4;cursor:default}
 .nbtn{border:1px solid var(--line);background:#fff;border-radius:5px;padding:8px 16px;font-size:13.5px;color:#39415a}
 .note{max-width:1500px;margin:0 auto 24px;padding:0 14px;color:var(--mute);font-size:12.5px;line-height:1.6}
 /* drawer */
@@ -102,7 +115,7 @@ table.cmp th,table.cmp td{border:1px solid #c7cfdd;padding:8px;vertical-align:to
 table.cmp th{background:#eef1f7}
 table.cmp td:first-child{background:#f6f8fb;font-weight:700;width:120px}
 .ok{color:#22a06b;font-weight:700}
-@media (max-width:900px){.body{grid-template-columns:1fr}.panel{min-height:0}.top,.sub{padding:10px 14px}}
+@media (max-width:900px){body{overflow:auto;display:block}.body{display:block}.split{display:none}.panel{overflow:visible;margin-bottom:10px}.top,.sub{padding:10px 14px}.foot{position:sticky;bottom:0}.foot .fnote{display:none}}
 </style>
 </head>
 <body>
@@ -112,12 +125,12 @@ table.cmp td:first-child{background:#f6f8fb;font-weight:700;width:120px}
   <button class="hbtn" id="bCmp">세 세트 비교</button>
 </header>
 <div class="sub" id="sub"></div>
-<main class="body">
-  <section class="panel" id="left"></section>
-  <section class="panel" id="right"></section>
+<main class="body" id="main">
+  <section class="panel" id="left" tabindex="0" aria-label="공통 지문"></section>
+  <div class="split" id="split" title="끌어서 좌우 폭 조절 (두 번 누르면 반반)"></div>
+  <section class="panel" id="right" tabindex="0" aria-label="문항"></section>
 </main>
-<div class="foot"><button class="nbtn" id="prev">◀ 이전 문항</button><button class="nbtn" id="next">다음 문항 ▶</button></div>
-<p class="note">이 페이지는 교과 협의에서 자료집 제출 문항을 고르기 위한 모형 화면입니다. 실제 평가지원시스템이 아니며, 답안 칸에 쓴 내용은 저장되지 않습니다. 문항·채점 기준은 각 세트 제출본(2026. 11. 12.)과 같습니다.</p>
+<footer class="foot"><span class="fnote">교과 협의용 모형 화면 · 실제 평가지원시스템 아님 · 답안은 저장되지 않음 · 문항은 제출본(2026. 11. 12.)과 같음</span><button class="tool" id="fsm" title="글자 작게">가−</button><button class="tool" id="fsp" title="글자 크게">가+</button><button class="nbtn" id="prev">◀ 이전 문항</button><span class="pos" id="pos"></span><button class="nbtn pri" id="next">다음 문항 ▶</button></footer>
 <div class="dim" id="dim"></div>
 <aside class="drawer" id="drawer">
   <div class="dhead"><b id="dtitle"></b><button class="x" id="dclose">닫기 ✕</button></div>
@@ -186,9 +199,20 @@ function renderRight(){
   $('#prev').disabled=Qi==0; $('#next').disabled=Qi==s.q.length-1;
   math($('#right'));
 }
-function render(){ renderSets(); renderSub(); renderLeft(); renderRight(); if($('#drawer').classList.contains('on')) renderD(); location.hash=cur().key+'-'+(Qi+1); }
-$('#prev').onclick=()=>{if(Qi>0){Qi--;render();scrollTo(0,0)}};
-$('#next').onclick=()=>{if(Qi<cur().q.length-1){Qi++;render();scrollTo(0,0)}};
+let lastS=-1;
+function render(){ renderSets(); renderSub(); if(S!==lastS){renderLeft(); $('#left').scrollTop=0; lastS=S;} renderRight(); $('#right').scrollTop=0; $('#pos').textContent=(Qi+1)+' / '+cur().q.length; if($('#drawer').classList.contains('on')) renderD(); history.replaceState(null,'','#'+cur().key+'-'+(Qi+1)); }
+function go(d){const n=Qi+d; if(n>=0&&n<cur().q.length){Qi=n;render(); if(innerWidth<=900) $('#right').scrollIntoView({block:'start'});}}
+$('#prev').onclick=()=>go(-1); $('#next').onclick=()=>go(1);
+document.addEventListener('keydown',e=>{ if(e.altKey&&e.key==='ArrowLeft'){go(-1);e.preventDefault()} if(e.altKey&&e.key==='ArrowRight'){go(1);e.preventDefault()} });
+/* 글자 크기 */
+let FS=15; function setFs(v){FS=Math.max(13,Math.min(20,v)); document.documentElement.style.setProperty('--fs',FS+'px');}
+$('#fsm').onclick=()=>setFs(FS-1); $('#fsp').onclick=()=>setFs(FS+1);
+/* 가운데 경계선 끌기 */
+(function(){const sp=$('#split'),mn=$('#main'); let on=false;
+ sp.addEventListener('pointerdown',e=>{on=true;sp.classList.add('drag');sp.setPointerCapture(e.pointerId);document.body.style.userSelect='none'});
+ sp.addEventListener('pointermove',e=>{if(!on)return; const r=mn.getBoundingClientRect(); let pct=(e.clientX-r.left-10)/(r.width-20)*100; pct=Math.max(28,Math.min(72,pct)); mn.style.setProperty('--lw',pct+'%')});
+ const end=()=>{on=false;sp.classList.remove('drag');document.body.style.userSelect=''}; sp.addEventListener('pointerup',end); sp.addEventListener('pointercancel',end);
+ sp.addEventListener('dblclick',()=>mn.style.setProperty('--lw','50%'));})();
 
 /* drawer */
 const DT=[['rub','채점 기준표'],['ans','예시 답안'],['cau','채점 시 유의점'],['case','채점 사례'],['ov','평가 개요']];
